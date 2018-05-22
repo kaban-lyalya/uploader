@@ -13,13 +13,12 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: config.sizeLimit },
   fileFilter: function(req, file, cb) {
-    const ext = config.fileTypes.test(
+    const extname = config.fileTypes.test(
       path.extname(file.originalname).toLowerCase()
     );
+    const mimetype = config.fileTypes.test(file.mimetype);
 
-    // const mime = config
-
-    if (ext) {
+    if (extname && mimetype) {
       cb(null, true);
     } else {
       cb("Error: images only!");
@@ -42,20 +41,16 @@ app.post("/upload", (req, res) => {
   upload(req, res, err => {
     if (err) {
       res.render("index", { msg: err });
-    } else {
-      sharp(req.file.buffer)
-        .resize(config.width, config.height)
-        .toFile("./public/uploads/" + Date.now() + req.file.originalname)
-        .then(info => {
-          console.log(req.file);
-        })
-        .catch(err => {
-          console.log(err);
-          return err;
-        });
-
-      res.render("index", { msg: "Uploaded" });
     }
+
+    sharp(req.file.buffer)
+      .resize(config.width, config.height)
+      .toFile("./public/uploads/" + Date.now() + req.file.originalname)
+      .catch(err => {
+        console.log(err);
+      });
+
+    res.render("index", { msg: "Uploaded" });
   });
 });
 
