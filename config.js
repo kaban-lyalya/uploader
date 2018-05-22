@@ -7,7 +7,10 @@ const config = {
   height: 300,
 
   // Allowed extensions and mimetype
-  fileTypes: /jpeg|jpg|png|gif/
+  fileTypes: /jpeg|jpg|png|gif/,
+
+  // Path for write files
+  filePath: "./public/uploads/"
 };
 
 module.exports = config;

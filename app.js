@@ -42,10 +42,10 @@ app.post("/upload", (req, res) => {
     if (err) {
       res.render("index", { msg: err });
     }
-
+    // Resize buffer and write
     sharp(req.file.buffer)
       .resize(config.width, config.height)
-      .toFile("./public/uploads/" + Date.now() + req.file.originalname)
+      .toFile(config.filePath + Date.now() + req.file.originalname)
       .catch(err => {
         console.log(err);
       });
