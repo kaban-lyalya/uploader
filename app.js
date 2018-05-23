@@ -5,7 +5,7 @@ const sharp = require("sharp"); // image converter
 const path = require("path"); // Node module
 const config = require("./config");
 
-// Init multer
+// Init multer (memory eater)
 const storage = multer.memoryStorage();
 
 // Init upload
@@ -16,6 +16,10 @@ const upload = multer({
     const extname = config.fileTypes.test(
       path.extname(file.originalname).toLowerCase()
     );
+
+    // Fucking mimetypes... Need using lib for magic...
+    // For now, browsers associate with extension
+    // Example lib: https://github.com/mscdex/mmmagic
     const mimetype = config.fileTypes.test(file.mimetype);
 
     if (extname && mimetype) {
@@ -41,16 +45,14 @@ app.post("/upload", (req, res) => {
   upload(req, res, err => {
     if (err) {
       res.render("index", { msg: err });
+    } else {
+      // Resize buffer and write
+      sharp(req.file.buffer)
+        .resize(config.width, config.height)
+        .toFile(config.filePath + Date.now() + req.file.originalname)
+        .then(() => res.render("index", { msg: "Uploaded" }))
+        .catch(err => res.render("index", { msg: `${err}` }));
     }
-    // Resize buffer and write
-    sharp(req.file.buffer)
-      .resize(config.width, config.height)
-      .toFile(config.filePath + Date.now() + req.file.originalname)
-      .catch(err => {
-        console.log(err);
-      });
-
-    res.render("index", { msg: "Uploaded" });
   });
 });
 
